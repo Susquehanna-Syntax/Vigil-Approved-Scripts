@@ -1,0 +1,14 @@
+name: Remove PyCharm Process Lock
+author: Admin
+created: 2026-07-05
+description: |
+  Removes Pycharm Process Lock that occurs 
+relevance: "Machine Effected"
+risk: high
+
+actions:
+  - id: remove lock
+    type: run_command
+    params:
+      command: 'rm /home/connor/.var/app/com.jetbrains.PyCharm-Professional/config/JetBrains/PyCharm2026.1/.lock'
+      timeout: 600
