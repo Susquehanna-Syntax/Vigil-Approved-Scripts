@@ -1,0 +1,15 @@
+name: Container Host Maintenance
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Recurring maintenance for a Docker host. Truncates Docker container logs
+  (the logs of every running container), then clears stale temp files. Safe
+  to run unattended; it reclaims disk without stopping any container.
+target_tags:
+  - docker
+
+steps:
+  - task: docker-prune-and-restart-unhealthy
+    order: 1
+  - task: clear-temp-files
+    order: 2

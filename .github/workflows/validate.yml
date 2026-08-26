@@ -1,0 +1,25 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-tasks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      # Each validator runs unconditionally (if: always()) and as its own
+      # step — never chained with && — so a failure in one content type
+      # cannot mask a failure in another. The job fails if any step fails.
+      - run: python validate_task.py --all
+      - run: python validate_baseline.py --all
+        if: always()
+      - run: python validate_automation.py --all
+        if: always()
+      - run: python3 -m unittest discover -s tests
+        if: always()

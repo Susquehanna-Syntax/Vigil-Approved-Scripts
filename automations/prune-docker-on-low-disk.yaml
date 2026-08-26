@@ -1,0 +1,18 @@
+name: Prune Docker On Low Disk
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  When a disk alert at warning severity or higher fires, runs the Container
+  Host Maintenance baseline on the host that raised it: truncates container
+  logs and clears stale temp files to free space. Reach for it on Docker
+  hosts where logs and temp files are what fill the disk.
+enabled: true
+
+trigger: event
+event: alert_fired
+min_severity: warning
+
+action_kind: baseline
+baseline: container-host-maintenance
+
+target: event_host

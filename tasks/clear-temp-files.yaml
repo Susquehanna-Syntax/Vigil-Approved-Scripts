@@ -1,0 +1,27 @@
+name: Clear Temp Files
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Clears stale files out of /tmp. Use it on hosts that accumulate scratch
+  files and need space back. Files newer than the age you supply (7 days by
+  default) are left alone.
+relevance: "Linux hosts that accumulate temp files"
+risk: low
+
+platforms:
+  - linux
+
+inputs:
+  - id: older_than_days
+    type: number
+    label: File age (days)
+    description: >-
+      Only remove files older than this many days.
+    default: 7
+    required: false
+
+actions:
+  - id: clear temp files
+    type: clear_temp_files
+    params:
+      older_than_days: "{{ inputs.older_than_days }}"

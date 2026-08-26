@@ -1,0 +1,32 @@
+name: Docker Prune and Restart Unhealthy Container
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Reclaims disk on a container host. Truncates the container's log file
+  (the log path Docker reports for it) and then restarts the container so it
+  comes back clean. Use it when a container's log has grown large or the
+  container is wedged and a restart is the expected fix. Supply the container
+  name at deploy time — it is not hardcoded.
+relevance: "Disk usage on Docker hosts"
+risk: standard
+
+platforms:
+  - linux
+
+inputs:
+  - id: container_name
+    type: text
+    label: Container name
+    description: >-
+      Name of the container whose log to truncate and that to restart.
+    required: true
+
+actions:
+  - id: truncate docker log
+    type: clear_docker_logs
+    params:
+      container_name: "{{ inputs.container_name }}"
+  - id: restart container
+    type: restart_container
+    params:
+      container_name: "{{ inputs.container_name }}"

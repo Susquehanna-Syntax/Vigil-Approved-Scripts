@@ -1,0 +1,24 @@
+name: Weekly Container Maintenance
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Runs the Container Host Maintenance baseline on every host tagged "docker"
+  at 04:00 on Sundays: truncates container logs and clears stale temp files.
+  A quiet, low-traffic time slot keeps the weekly sweep out of the way of
+  production load.
+enabled: true
+
+trigger: schedule
+cron:
+  minute: "0"
+  hour: "4"
+  dom: "*"
+  month: "*"
+  dow: "0"
+
+action_kind: baseline
+baseline: container-host-maintenance
+
+target: tags
+target_tags:
+  - docker

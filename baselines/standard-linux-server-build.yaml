@@ -1,0 +1,19 @@
+name: Standard Linux Server Build
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Post-provision build for a fresh Linux host. Installs the nginx web server,
+  restarts it and confirms it is running, then clears stale temp files so the
+  host starts with a clean /tmp. Run it on a host right after it is
+  provisioned to bring it to a known-good starting state.
+target_tags:
+  - linux
+  - server
+
+steps:
+  - task: install-nginx
+    order: 1
+  - task: rotate-and-verify-nginx
+    order: 2
+  - task: clear-temp-files
+    order: 3

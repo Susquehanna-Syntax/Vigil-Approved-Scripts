@@ -1,0 +1,19 @@
+name: Install Nginx
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Installs the nginx web server with the system package manager. Use it on a
+  fresh host that should serve web traffic. The service is started and
+  enabled by the package itself; run Rotate and Verify Service afterwards if
+  you want to prove it is up.
+relevance: "Fresh Linux hosts that need a web server"
+risk: standard
+
+platforms:
+  - linux
+
+actions:
+  - id: install nginx
+    type: install_package
+    params:
+      package_name: nginx
