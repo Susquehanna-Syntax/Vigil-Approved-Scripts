@@ -32,6 +32,7 @@ import sys
 from pathlib import Path
 
 from common import (
+    check_uid,
     _HERE,
     _MAX_ACTION_ID,
     _MAX_ACTIONS,
@@ -97,6 +98,7 @@ def validate_task_text(text: str, actions: dict) -> list[str]:
     for field, limit in (("description", _MAX_DESCRIPTION),
                          ("relevance", _MAX_RELEVANCE)):
         check_scalar(raw, field, limit, errors=errors)
+    check_uid(raw, errors)
     check_author(raw, errors)
     check_created(raw, errors)
     risk = raw.get("risk")

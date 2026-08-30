@@ -1,4 +1,5 @@
 name: Weekly Container Maintenance
+uid: dd4d0d19-ae9e-5193-ad95-4fac119997e3
 author: Connor Haggerty
 created: 2026-08-26
 description: >-
@@ -18,6 +19,7 @@ cron:
 
 action_kind: baseline
 baseline: container-host-maintenance
+action_uid: 29d90af5-69fc-5c7b-a4d2-734741abb534
 
 target: tags
 target_tags:

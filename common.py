@@ -100,6 +100,34 @@ def check_created(raw: dict, errors: list[str]) -> None:
         errors.append(f"'created' {created!r} must be an ISO-8601 date (YYYY-MM-DD)")
 
 
+def check_uid(raw: dict, errors: list[str], field: str = "uid",
+              where: str = "") -> None:
+    """Validate a content uid: a UUID identifying this item everywhere.
+
+    A slug is a filename, so it changes when a file is renamed and collides
+    when two contributors pick the same name. A uid is neither, which is what
+    lets a baseline keep pointing at the right task after someone renames
+    their copy, and lets two unrelated tasks share a name.
+
+    Optional: everything merged before uids existed has none, and Vigil falls
+    back to slug matching for those. New content should carry one — Vigil's
+    "Submit to Community" writes it for you.
+    """
+    import uuid as _uuid
+
+    value = raw.get(field)
+    if value in (None, ""):
+        return
+    label = f"{where}'{field}'" if where else f"'{field}'"
+    if not isinstance(value, str):
+        errors.append(f"{label} must be a UUID string")
+        return
+    try:
+        _uuid.UUID(value.strip())
+    except (ValueError, AttributeError):
+        errors.append(f"{label} is not a valid UUID: {value!r}")
+
+
 def check_string_list(raw: dict, field: str, errors: list[str],
                       required: bool = False, non_empty: bool = False,
                       max_len: int | None = None) -> None:
@@ -139,6 +167,23 @@ def load_task_risk(path: Path) -> str:
     if is_str(risk) and risk.strip().lower() in _VALID_RISK:
         return risk.strip().lower()
     return "standard"
+
+
+def load_content_uid(path: Path) -> str:
+    """Read the ``uid`` out of a content file, or "" when it has none.
+
+    Used to check that a reference's uid and its slug name the same file.
+    A parse failure here is not this file's error to report — the validator
+    for that content type will report it — so it degrades to "no uid".
+    """
+    try:
+        raw, error = load_yaml(path.read_text(encoding="utf-8"))
+    except OSError:
+        return ""
+    if error is not None or not isinstance(raw, dict):
+        return ""
+    value = raw.get("uid")
+    return value.strip() if is_str(value) else ""
 
 
 def resolve_slug(root: Path, slug) -> Path | None:

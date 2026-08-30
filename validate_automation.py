@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 from common import (
+    check_uid,
     _HERE,
     _MAX_CRON_FIELD,
     CRON_FIELDS,
@@ -193,6 +194,8 @@ def validate_automation_text(text: str,
     errors: list[str] = []
     check_scalar(raw, "name", _MAX_NAME, required=True, errors=errors)
     check_scalar(raw, "description", _MAX_DESCRIPTION, errors=errors)
+    check_uid(raw, errors)
+    check_uid(raw, errors, field="action_uid")
     check_author(raw, errors)
     check_created(raw, errors)
     check_boolean(raw, "enabled", errors)

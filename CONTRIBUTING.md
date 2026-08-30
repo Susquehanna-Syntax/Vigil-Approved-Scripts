@@ -59,6 +59,31 @@ If you submit a baseline that references a new task in the same pull request,
 both files must land together; the validator resolves references against the
 tree the pull request produces.
 
+### And the `uid` beside it
+
+A reference may also carry the target's `uid`, and Vigil resolves by that
+first. The slug stays because it is what a reviewer reading the diff can
+follow; the uid is what actually resolves on the far side.
+
+The distinction matters because a slug is a filename. It changes when a file
+is renamed, it collides when two contributors pick the same name, and this
+repo does not force a filename to equal the slugified `name` inside it —
+`tasks/docker-prune-and-restart-unhealthy.yaml` is called "Docker Prune and
+Restart Unhealthy Container". A uid is none of those things, which is what
+lets a baseline keep pointing at the right task after somebody renames their
+local copy of it.
+
+When a reference carries both, they must agree. The validator rejects a step
+whose uid belongs to a different file than its slug does: Vigil trusts the
+uid, so such a file would import something other than what the diff showed.
+
+Every file in this repo carries a `uid`, and Vigil's *Submit to Community*
+writes one into anything you share. **Never reuse or edit one** — it is the
+file's identity, not its version. Change it and every installation treats the
+file as new content and forks a second copy alongside the one people already
+have. Copy a file to start another and leave the `uid` in place, and the two
+now claim to be the same thing; delete the line and let Vigil mint a new one.
+
 ### No host references in community automations
 
 A community automation can target `event_host` (the host that raised the

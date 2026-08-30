@@ -91,3 +91,32 @@ Validate locally before you open a pull request:
 python validate_baseline.py --all
 python validate_baseline.py baselines/new-server-build.yaml
 ```
+
+## Identity: the `uid` field
+
+Every content file may carry a `uid` — a UUID that identifies it on every
+Vigil installation, forever.
+
+References between files still name a **slug** so a human reading the diff can
+follow them, but Vigil resolves by `uid` first. That matters because a slug is
+a filename: it changes when the file is renamed, it collides when two people
+pick the same name, and this repo does not force a filename to equal the
+slugified `name` inside it. A uid is none of those things. It is what lets a
+baseline keep pointing at the right task after somebody renames their local
+copy, and what lets two unrelated tasks both be called "Cleanup".
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `uid` | string | no | A UUID. Vigil's *Submit to Community* writes one for you. |
+
+`uid` is optional because everything merged before it existed has none, and
+Vigil falls back to slug matching for those. New content should carry one.
+
+**Do not reuse or edit a `uid`.** It is the file's identity, not its version:
+changing it makes every installation treat the file as new content and fork a
+second copy alongside the one people already have. Copying one file to start
+another and leaving the `uid` in place is the same mistake in reverse — the
+two files then claim to be the same thing. Delete the line and let Vigil mint
+a fresh one.
+
+A step may also carry `uid`, the uid of the task its `task` slug names. When both are present they must agree; the validator rejects a step whose uid belongs to a different file than its slug does, because Vigil trusts the uid and would import something other than what the diff showed.

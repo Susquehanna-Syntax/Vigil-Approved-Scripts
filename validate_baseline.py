@@ -28,6 +28,8 @@ import sys
 from pathlib import Path
 
 from common import (
+    check_uid,
+    load_content_uid,
     _HERE,
     _MAX_DESCRIPTION,
     _MAX_NAME,
@@ -66,6 +68,7 @@ def validate_baseline_text(text: str, tasks_dir: Path | None = None) -> list[str
     errors: list[str] = []
     check_scalar(raw, "name", _MAX_NAME, required=True, errors=errors)
     check_scalar(raw, "description", _MAX_DESCRIPTION, errors=errors)
+    check_uid(raw, errors)
     check_author(raw, errors)
     check_created(raw, errors)
     check_string_list(raw, "target_tags", errors, max_len=_MAX_TARGET_TAGS)
@@ -84,10 +87,27 @@ def validate_baseline_text(text: str, tasks_dir: Path | None = None) -> list[str
                 errors.append(f"{where} must be a mapping")
                 continue
 
+            check_uid(step, errors, where=f"{where} ")
+
             task_slug = step.get("task")
             if not is_str(task_slug) or not task_slug.strip():
                 errors.append(f"{where} missing 'task' slug")
                 continue
+
+            # A step's uid must agree with the file its slug resolves to.
+            # Disagreeing is not a preference between two identifiers, it is a
+            # file claiming to reference something it does not — and Vigil
+            # trusts the uid, so it would import a different task than the one
+            # a reviewer read here.
+            step_uid = (step.get("uid") or "").strip()
+            if step_uid:
+                target_for_uid = resolve_slug(tasks_dir, task_slug)
+                if target_for_uid is not None:
+                    actual = load_content_uid(target_for_uid)
+                    if actual and actual != step_uid:
+                        errors.append(
+                            f"{where}: uid {step_uid!r} does not match "
+                            f"{task_slug.strip()!r}, whose uid is {actual!r}")
 
             target = resolve_slug(tasks_dir, task_slug)
             if target is None:

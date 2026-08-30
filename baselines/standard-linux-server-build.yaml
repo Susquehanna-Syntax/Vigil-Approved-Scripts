@@ -1,4 +1,5 @@
 name: Standard Linux Server Build
+uid: f4ccbca4-140d-52c8-8811-7245db2ca032
 author: Connor Haggerty
 created: 2026-08-26
 description: >-
@@ -12,8 +13,11 @@ target_tags:
 
 steps:
   - task: install-nginx
+    uid: 1cf8ab45-1b5f-52e8-8bc8-fe9ef29a488c
     order: 1
   - task: rotate-and-verify-nginx
+    uid: 28100e17-bc96-5bfb-876b-d851e248458a
     order: 2
   - task: clear-temp-files
+    uid: c6c2e640-2958-54eb-a64f-f6be1870c131
     order: 3

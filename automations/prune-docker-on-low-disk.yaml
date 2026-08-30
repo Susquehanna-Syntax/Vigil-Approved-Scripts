@@ -1,4 +1,5 @@
 name: Prune Docker On Low Disk
+uid: 62bac7e3-7ae6-5e5b-bcd3-01348338d99f
 author: Connor Haggerty
 created: 2026-08-26
 description: >-
@@ -14,5 +15,6 @@ min_severity: warning
 
 action_kind: baseline
 baseline: container-host-maintenance
+action_uid: 29d90af5-69fc-5c7b-a4d2-734741abb534
 
 target: event_host
