@@ -1,0 +1,40 @@
+name: Onboard a Container Host
+uid: b00d9292-a880-436f-84c9-63d53e8d9846
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Run once when a host joins. If it runs Docker or Podman, it is tagged
+  "docker" (so the container maintenance schedule picks it up), its
+  container logs are truncated, and it gets a Trivy scan when Trivy is
+  installed. Hosts without a container engine get their temp files cleared
+  and end as "Not a container host".
+target_tags: []
+
+steps:
+  - id: tag
+    task: tag-container-hosts
+    uid: 3cf68a9e-53f7-4b2c-a27d-88427ffe84e8
+    order: 1
+    on_not_applicable: skip
+    color: sky
+  - if: steps.tag.status == "ok"
+    then:
+      - id: logs
+        task: truncate-container-logs
+        uid: 04954106-4ce1-48d7-a232-408624b49405
+        order: 2
+        color: mint
+      - id: scan
+        task: scan-with-trivy
+        uid: 133df278-5d69-4f1f-90da-0252fe3cfe21
+        order: 3
+        on_not_applicable: skip
+        color: lavender
+        outcome: Onboarded
+    else:
+      - id: skip
+        task: clear-temp-files
+        uid: c6c2e640-2958-54eb-a64f-f6be1870c131
+        order: 4
+        color: peach
+        outcome: Not a container host

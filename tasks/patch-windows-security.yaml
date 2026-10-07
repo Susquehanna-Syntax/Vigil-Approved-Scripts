@@ -1,0 +1,43 @@
+name: Patch Windows Security
+uid: 1eee4aad-4d9d-48c4-b831-b5ad94428b02
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Scans for missing Windows security and critical updates, installs them
+  only if there are any, and schedules a reboot the logged-in user can defer
+  when an update needs one. Hosts with nothing missing finish as "Up to
+  date" and never reach the install step.
+risk: standard
+platforms:
+  - windows
+
+# platforms: is a label; this probe is what makes a Linux host report not
+# applicable. Every Windows install has the Windows Update service.
+relevant:
+  all:
+    - hunt_service:
+        name: wuauserv
+
+actions:
+  - id: scan
+    type: windows_update_scan
+    params:
+      classifications: Security Updates,Critical Updates
+    outcome: Up to date
+  - if: steps.scan.result.count > 0
+    then:
+      - id: install
+        type: windows_update_install
+        params:
+          classifications: Security Updates,Critical Updates
+        outcome: Patched
+      - id: reboot
+        type: reboot
+        when: steps.install.result.reboot_required == True
+        params:
+          delay_seconds: 900
+          notify: true
+          notify_message: Security updates were installed. This PC restarts in 15 minutes.
+          defer_limit: 2
+          defer_minutes: 60
+        outcome: Patched, rebooting

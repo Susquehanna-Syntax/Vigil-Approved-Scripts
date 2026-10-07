@@ -1,0 +1,28 @@
+name: Restart Nginx When It Alerts
+uid: 8ed221ec-98d8-432e-b766-4205d1ba73aa
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  When an alert whose rule or message mentions nginx fires, runs Keep Nginx
+  Running on the host that raised it. The task only
+  restarts nginx if it is actually down, so a noisy alert costs a status
+  check, not a restart.
+enabled: true
+
+trigger: event
+event: alert_sent
+min_severity: warning
+condition_logic: any
+conditions:
+  - field: rule
+    op: contains
+    value: nginx
+  - field: message
+    op: contains
+    value: nginx
+
+action_kind: task
+task: keep-nginx-running
+action_uid: d6772f24-63d4-4616-a313-8eb2de343916
+
+target: event_host

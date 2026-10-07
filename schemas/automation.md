@@ -1,7 +1,7 @@
 # Automations
 
 An **automation** binds a trigger to an action: when something happens (or
-when the clock says so), a task or a baseline runs on a set of hosts without
+when the clock says so), a task or a playbook runs on a set of hosts without
 anyone clicking anything. It is the "when X, do Y" of the community repo.
 
 Automations live **flat inside `automations/`**, the same way tasks live flat
@@ -19,9 +19,11 @@ Fires when a lifecycle event happens — an alert, a host approval, and so on.
 
 | Field          | Type   | Required | Notes                                                        |
 |----------------|--------|----------|--------------------------------------------------------------|
-| `event`        | string | yes      | The name of the event to watch.                               |
+| `event`        | string | yes      | One of `alert_sent`, `alert_refired`, `host_approved`, `host_rejected`, `task_completed`, `insight_created`. |
 | `min_severity` | string | no       | One of `info`, `warning`, `critical`. Alert events only: fire only when the alert is at least this severe. |
 | `event_tags`   | list   | no       | Strings. Alert events only: fire only for events on hosts carrying one of these tags. |
+| `conditions`   | list   | no       | Up to 20 `{field, op, value}` filters. Fields: `text`, `severity`, `rule`, `message`, `metric_value`, `flap_count`, `host`, `host_tags`, `event`. Ops include `equals`, `contains`, `starts_with`, `regex`, `gt`/`gte`/`lt`/`lte`, `in`, `is_set`. |
+| `condition_logic` | string | no    | `all` (default) or `any`: how `conditions` combine. |
 
 ### `trigger: schedule`
 
@@ -50,12 +52,12 @@ The action is one of two kinds, chosen by `action_kind`:
 
 | Field         | Type   | Required | Notes                                                        |
 |---------------|--------|----------|--------------------------------------------------------------|
-| `action_kind` | string | yes      | `task` or `baseline`.                                        |
-| `task`        | string | when `action_kind: task` | The slug of a file in `tasks/`. Must resolve. When `action_kind` is `baseline`, this key is forbidden. |
-| `baseline`    | string | when `action_kind: baseline` | The slug of a file in `baselines/`. Must resolve. When `action_kind` is `task`, this key is forbidden. |
+| `action_kind` | string | yes      | `task` or `playbook`.                                        |
+| `task`        | string | when `action_kind: task` | The slug of a file in `tasks/`. Must resolve. When `action_kind` is `playbook`, this key is forbidden. |
+| `playbook`    | string | when `action_kind: playbook` | The slug of a file in `playbooks/`. Must resolve. When `action_kind` is `task`, this key is forbidden. |
 | `params_override` | mapping | no   | Input overrides merged over the action's parameters at dispatch. Keys are the action's zero-based index as a string; values are mappings of parameter name to value. |
 
-Exactly one of `task` or `baseline` must be present, and it must match
+Exactly one of `task` or `playbook` must be present, and it must match
 `action_kind`. Supplying both, or supplying the one that does not match
 `action_kind`, is an error.
 
@@ -109,7 +111,7 @@ description: >-
 enabled: true
 
 trigger: event
-event: alert
+event: alert_sent
 min_severity: critical
 event_tags:
   - web
@@ -120,20 +122,20 @@ task: clean-stale-files
 target: event_host
 ```
 
-A scheduled variant, running a baseline nightly at 2am on the web hosts:
+A scheduled variant, running a playbook nightly at 2am on the web hosts:
 
 ```yaml
-name: Nightly Web Baseline
+name: Nightly Web Playbook
 author: Connor Haggerty
-description: Runs the standard web-server baseline every night at 02:00.
+description: Runs the standard web-server playbook every night at 02:00.
 
 trigger: schedule
 cron:
   minute: "0"
   hour: "2"
 
-action_kind: baseline
-baseline: new-server-build
+action_kind: playbook
+playbook: new-server-build
 
 target: tags
 target_tags:
@@ -157,7 +159,7 @@ follow them, but Vigil resolves by `uid` first. That matters because a slug is
 a filename: it changes when the file is renamed, it collides when two people
 pick the same name, and this repo does not force a filename to equal the
 slugified `name` inside it. A uid is none of those things. It is what lets a
-baseline keep pointing at the right task after somebody renames their local
+playbook keep pointing at the right task after somebody renames their local
 copy, and what lets two unrelated tasks both be called "Cleanup".
 
 | Field | Type | Required | Notes |
@@ -174,4 +176,4 @@ another and leaving the `uid` in place is the same mistake in reverse — the
 two files then claim to be the same thing. Delete the line and let Vigil mint
 a fresh one.
 
-An automation may also carry `action_uid`, the uid of the task or baseline it runs, alongside the `task` or `baseline` slug.
+An automation may also carry `action_uid`, the uid of the task or playbook it runs, alongside the `task` or `playbook` slug.

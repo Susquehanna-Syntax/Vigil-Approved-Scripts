@@ -1,0 +1,34 @@
+name: Patch Tuesday
+uid: 7135e2c8-8bef-4808-911d-eb7d311fdd2e
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  One playbook for a mixed fleet's monthly patch run. Windows hosts install
+  missing security and critical updates and reboot (deferrable) when an
+  update needs it; Linux hosts install their security updates. Each task
+  only applies to its own platform, so on any one host the other is
+  skipped. Afterwards the xz backdoor check runs, closing its finding
+  wherever the update fixed it.
+target_tags: []
+
+steps:
+  - id: windows
+    task: patch-windows-security
+    uid: 1eee4aad-4d9d-48c4-b831-b5ad94428b02
+    order: 1
+    on_not_applicable: skip
+    on_failure: continue
+    color: sky
+  - id: linux
+    task: patch-linux-security
+    uid: d3759bd8-a5c0-492e-b460-765ef089c87a
+    order: 2
+    on_not_applicable: skip
+    on_failure: continue
+    color: mint
+  - id: xz
+    task: xz-backdoor-cve-2024-3094
+    uid: 1257a8f9-c5f3-421e-bb3e-aabf05701268
+    order: 3
+    on_not_applicable: skip
+    color: rose

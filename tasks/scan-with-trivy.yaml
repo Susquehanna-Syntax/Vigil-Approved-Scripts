@@ -1,0 +1,24 @@
+name: Scan With Trivy
+uid: 133df278-5d69-4f1f-90da-0252fe3cfe21
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Runs a Trivy vulnerability scan of the host's filesystem and sends
+  the findings to the Vulnerabilities page. Hosts without Trivy report not
+  applicable: deploy Vigil's built-in "Install Trivy" template to them
+  first.
+risk: low
+
+relevant:
+  any:
+    - hunt_file:
+        name: trivy
+        paths: /usr/bin,/usr/local/bin
+    - hunt_file:
+        name: trivy.exe
+        scope: targeted
+
+actions:
+  - id: scan
+    type: run_trivy_scan
+    outcome: Scanned

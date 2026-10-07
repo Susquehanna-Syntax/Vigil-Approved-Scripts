@@ -2,12 +2,11 @@ name: Remove PyCharm Process Lock
 uid: f843c56d-d19f-5143-9d2c-ec742938ca95
 author: Connor Haggerty
 created: 2026-07-05
-description: |
-  Removes the stale PyCharm .lock file that can keep PyCharm from starting
-  after an unclean shutdown. Supply the path to the PyCharm config directory
-  (the folder that contains .lock) at deploy time — it varies by user,
-  version and platform.
-relevance: "Machine Effected"
+description: >-
+  Removes the stale PyCharm .lock file that keeps PyCharm from starting after
+  an unclean shutdown. Supply the full path to the .lock file at deploy time:
+  it sits in the PyCharm config directory, which varies by user, version and
+  platform.
 risk: high
 
 inputs:
@@ -15,12 +14,13 @@ inputs:
     type: text
     label: PyCharm .lock file path
     description: >-
-      Full path to the .lock file, e.g. the .lock inside the PyCharm
-      config directory.
+      Full path to the .lock file, e.g. ~/.config/JetBrains/PyCharm2026.2/.lock
+      on Linux or %APPDATA%\JetBrains\PyCharm2026.2\.lock on Windows.
     required: true
 
 actions:
-  - id: remove lock
+  - id: remove-lock
     type: delete_path
     params:
-      path: "{{ inputs.lock_path }}"
+      path: "${{ inputs.lock_path }}"
+    outcome: Lock removed

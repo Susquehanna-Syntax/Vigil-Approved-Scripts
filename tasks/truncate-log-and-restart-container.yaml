@@ -1,0 +1,31 @@
+name: Truncate Log and Restart Container
+uid: 342135b3-b6ad-5b79-b24d-59c8d9d5b31b
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Gets one wedged container back on its feet. Truncates the container's log
+  file (the path Docker reports for it), restarts the container, and checks
+  it came back. Use it when a container's log has grown huge or the
+  container has stopped answering and a restart is the expected fix. Supply
+  the container name at deploy time.
+risk: standard
+platforms:
+  - linux
+
+inputs:
+  - id: container_name
+    type: text
+    label: Container name
+    description: The container to truncate and restart.
+    required: true
+
+actions:
+  - id: truncate
+    type: clear_docker_logs
+    params:
+      container_name: "${{ inputs.container_name }}"
+  - id: restart
+    type: restart_container
+    params:
+      container_name: "${{ inputs.container_name }}"
+    outcome: Restarted

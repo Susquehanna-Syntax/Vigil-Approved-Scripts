@@ -1,0 +1,24 @@
+name: Truncate Container Logs
+uid: 04954106-4ce1-48d7-a232-408624b49405
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Truncates the log file of every container on the host, without stopping
+  any of them. Docker's default json-file logs grow without limit, and on a
+  busy host they are often what fills the disk. Safe to run unattended. Hosts
+  with no container engine report not applicable.
+risk: low
+platforms:
+  - linux
+
+relevant:
+  any:
+    - hunt_service:
+        name: docker
+    - hunt_service:
+        name: podman
+
+actions:
+  - id: truncate
+    type: clear_docker_logs
+    outcome: Logs truncated
