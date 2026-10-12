@@ -1,0 +1,18 @@
+name: Keep Firefox Current
+uid: 526dcc01-aff2-4a4a-af2e-9526a12e9f4a
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Makes sure Firefox is installed and on its latest version, through
+  whichever package manager the host uses (winget, Chocolatey, apt, dnf,
+  flatpak…). The step reports whether anything changed and the version
+  before and after, so the run detail shows which hosts were behind.
+risk: standard
+
+actions:
+  - id: ensure
+    type: app_ensure
+    params:
+      app: firefox
+      state: latest
+    outcome: Firefox current

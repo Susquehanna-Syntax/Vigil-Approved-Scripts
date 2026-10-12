@@ -1,0 +1,25 @@
+name: Tag Container Hosts
+uid: 3cf68a9e-53f7-4b2c-a27d-88427ffe84e8
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Adds the "docker" tag to every host that runs Docker or Podman, so
+  container automations and playbooks can target hosts by tag instead of by
+  name. Hosts without a container engine report not applicable and keep
+  their tags. Run it once across the fleet, or from the "Tag New Container
+  Hosts" automation as each host is approved.
+risk: low
+
+relevant:
+  any:
+    - hunt_service:
+        name: docker
+    - hunt_service:
+        name: podman
+
+actions:
+  - id: tag
+    type: add_tag
+    params:
+      tags: docker
+    outcome: Tagged docker

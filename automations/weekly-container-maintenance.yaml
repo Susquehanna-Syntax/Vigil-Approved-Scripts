@@ -3,10 +3,10 @@ uid: dd4d0d19-ae9e-5193-ad95-4fac119997e3
 author: Connor Haggerty
 created: 2026-08-26
 description: >-
-  Runs the Container Host Maintenance baseline on every host tagged "docker"
-  at 04:00 on Sundays: truncates container logs and clears stale temp files.
-  A quiet, low-traffic time slot keeps the weekly sweep out of the way of
-  production load.
+  Runs Container Host Maintenance on every host tagged "docker" at 04:00 on
+  Sundays: truncates container logs and clears stale temp files. A quiet
+  slot keeps the weekly sweep out of production traffic. Pair it with the
+  "Tag New Container Hosts" automation so new hosts join automatically.
 enabled: true
 
 trigger: schedule
@@ -17,8 +17,8 @@ cron:
   month: "*"
   dow: "0"
 
-action_kind: baseline
-baseline: container-host-maintenance
+action_kind: playbook
+playbook: container-host-maintenance
 action_uid: 29d90af5-69fc-5c7b-a4d2-734741abb534
 
 target: tags

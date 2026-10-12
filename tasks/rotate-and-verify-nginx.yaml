@@ -3,36 +3,31 @@ uid: 28100e17-bc96-5bfb-876b-d851e248458a
 author: Connor Haggerty
 created: 2026-08-26
 description: >-
-  Restarts a service and confirms it came back. Defaults to nginx: restarts
-  it, then checks the service and requires it to report as running. Use it
-  after changing nginx configuration to bounce the service and prove the new
-  config loaded. Supply a different service name at deploy time if yours is
-  not named "nginx".
-relevance: "Web servers running nginx"
+  Restarts a service and proves it came back. Defaults to nginx: restarts
+  it, then checks the service and requires it to be running, so the run
+  fails if the new configuration did not load. Use it after changing nginx
+  configuration. Supply a different service name at deploy time if yours is
+  not called "nginx".
 risk: standard
-
 platforms:
   - linux
-
-success_criteria:
-  exit_code: 0
 
 inputs:
   - id: service_name
     type: text
     label: Service name
-    description: >-
-      systemd service name to restart and verify.
+    description: systemd service to restart and verify.
     default: nginx
     required: true
 
 actions:
-  - id: restart nginx
+  - id: restart
     type: restart_service
     params:
-      service_name: "{{ inputs.service_name }}"
-  - id: verify nginx is active
+      service_name: "${{ inputs.service_name }}"
+  - id: verify
     type: check_service
     params:
-      service_name: "{{ inputs.service_name }}"
+      service_name: "${{ inputs.service_name }}"
       expect: running
+    outcome: Restarted and running

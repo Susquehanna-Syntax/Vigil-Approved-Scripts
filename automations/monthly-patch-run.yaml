@@ -1,0 +1,27 @@
+name: Monthly Patch Run
+uid: bfd42cef-90b1-4019-b0ba-d2a2ddfe545d
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Runs the Patch Tuesday playbook at 03:00 on the 15th of every month, on
+  every host tagged "patch-monthly". Microsoft's Patch Tuesday always falls
+  between the 8th and the 14th, so the 15th is the first day every month's
+  updates are guaranteed to be out. Cron cannot say "the day after the
+  second Tuesday", which is why it is a fixed date.
+enabled: true
+
+trigger: schedule
+cron:
+  minute: "0"
+  hour: "3"
+  dom: "15"
+  month: "*"
+  dow: "*"
+
+action_kind: playbook
+playbook: patch-tuesday
+action_uid: 7135e2c8-8bef-4808-911d-eb7d311fdd2e
+
+target: tags
+target_tags:
+  - patch-monthly

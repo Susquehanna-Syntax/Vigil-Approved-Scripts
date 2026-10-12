@@ -3,23 +3,42 @@ name: validate
 on:
   push:
   pull_request:
+  # Vigil's language moves; re-check the library against it every week so a
+  # Vigil change that breaks a file shows up here, not on someone's import.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      vigil_ref:
+        description: Vigil branch or tag to validate against
+        default: main
 
 jobs:
-  validate-tasks:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: content
+      # Validate with Vigil's own parsers: the same code the Community page
+      # runs, so this repo can never drift from what the server accepts.
+      - uses: actions/checkout@v4
+        with:
+          repository: Susquehanna-Syntax/Vigil
+          ref: ${{ github.event.inputs.vigil_ref || 'main' }}
+          path: vigil
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyyaml
-      # Each validator runs unconditionally (if: always()) and as its own
-      # step — never chained with && — so a failure in one content type
-      # cannot mask a failure in another. The job fails if any step fails.
-      - run: python validate_task.py --all
-      - run: python validate_baseline.py --all
-        if: always()
-      - run: python validate_automation.py --all
-        if: always()
-      - run: python3 -m unittest discover -s tests
-        if: always()
+          cache: pip
+          cache-dependency-path: vigil/server/requirements.txt
+      - run: pip install -r vigil/server/requirements.txt
+      - name: validate_community --strict
+        working-directory: vigil/server
+        env:
+          USE_SQLITE: "1"
+          VIGIL_PUBLIC_URL: http://localhost
+          DJANGO_SECRET_KEY: ci-only
+        run: |
+          export VIGIL_SIGNING_KEY_SEED="$(python -c 'import os,base64;print(base64.b64encode(os.urandom(32)).decode())')"
+          python manage.py validate_community "$GITHUB_WORKSPACE/content" --strict

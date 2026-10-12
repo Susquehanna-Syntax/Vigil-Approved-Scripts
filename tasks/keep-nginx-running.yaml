@@ -1,0 +1,38 @@
+name: Keep Nginx Running
+uid: d6772f24-63d4-4616-a313-8eb2de343916
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Checks nginx and restarts it only if it is down. Hosts without nginx
+  report not applicable, so it is safe to target a whole fleet. The run's
+  outcome says which path each host took: "Already running" or "Restarted".
+  A host's outcome is the last step with an outcome that finished, so a
+  restarted host ends as "Restarted". A worked example of relevant:, if:,
+  step outputs and outcome: in one task.
+risk: standard
+platforms:
+  - linux
+
+relevant:
+  all:
+    - hunt_package:
+        name: nginx
+
+actions:
+  - id: check
+    type: check_service
+    params:
+      service_name: nginx
+    outcome: Already running
+  - if: steps.check.result.active == False
+    then:
+      - id: restart
+        type: restart_service
+        params:
+          service_name: nginx
+      - id: verify
+        type: check_service
+        params:
+          service_name: nginx
+          expect: running
+        outcome: Restarted

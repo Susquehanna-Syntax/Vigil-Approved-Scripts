@@ -1,0 +1,33 @@
+name: Keep the Web Tier Healthy
+uid: 6cfb6c63-29d1-4b3d-ad40-434965139569
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  A branching playbook. It makes sure nginx is running and, if bringing it
+  back fails, falls back to a full restart-and-verify so the run proves the
+  service is really up. Hosts without nginx skip straight to the temp-file
+  sweep. Open it in Playbooks → Edit to see the two lanes on the canvas.
+target_tags:
+  - web
+
+steps:
+  - id: ensure
+    task: keep-nginx-running
+    uid: d6772f24-63d4-4616-a313-8eb2de343916
+    order: 1
+    on_not_applicable: skip
+    on_failure: continue
+    color: sky
+  - if: steps.ensure.status == "failed"
+    then:
+      - id: recover
+        task: rotate-and-verify-nginx
+        uid: 28100e17-bc96-5bfb-876b-d851e248458a
+        order: 2
+        color: rose
+        outcome: Needed recovery
+  - id: tidy
+    task: clear-temp-files
+    uid: c6c2e640-2958-54eb-a64f-f6be1870c131
+    order: 3
+    color: lavender

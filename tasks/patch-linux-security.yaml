@@ -1,0 +1,27 @@
+name: Patch Linux Security
+uid: d3759bd8-a5c0-492e-b460-765ef089c87a
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Installs the security updates the host's package manager offers, and
+  nothing else. On apt this is the -security pocket; dnf and yum use
+  --security. Pair it with a schedule automation, or use a patch policy
+  when you want approvals, deferrals and maintenance windows.
+risk: standard
+platforms:
+  - linux
+
+# platforms: is a label; this probe is what makes a Windows host report not
+# applicable. Every systemd-era Linux has /etc/os-release.
+relevant:
+  all:
+    - hunt_file:
+        name: os-release
+        paths: /etc
+
+actions:
+  - id: patch
+    type: run_package_updates
+    params:
+      security_only: true
+    outcome: Patched

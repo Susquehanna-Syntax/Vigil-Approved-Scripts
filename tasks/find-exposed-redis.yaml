@@ -1,0 +1,18 @@
+name: Find Exposed Redis
+uid: b2e65ea8-ba8a-49ab-9cf2-b7abd2345864
+author: Connor Haggerty
+created: 2026-10-07
+description: >-
+  Hunts for anything listening on Redis's default port, 6379. Redis ships
+  without authentication, so a listener reachable from the network is a
+  common way in. The hunt is read-only: it reports each listener with its
+  process, and changes nothing. Use the matches to decide which hosts need
+  Redis bound to localhost or put behind a password.
+risk: low
+
+actions:
+  - id: listeners
+    type: hunt_port
+    params:
+      port: 6379
+      protocol: tcp

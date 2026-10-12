@@ -3,18 +3,23 @@ uid: 1cf8ab45-1b5f-52e8-8bc8-fe9ef29a488c
 author: Connor Haggerty
 created: 2026-08-26
 description: >-
-  Installs the nginx web server with the system package manager. Use it on a
-  fresh host that should serve web traffic. The service is started and
-  enabled by the package itself; run Rotate and Verify Service afterwards if
-  you want to prove it is up.
-relevance: "Fresh Linux hosts that need a web server"
+  Installs the nginx web server with the host's own package manager (apt,
+  dnf, yum, pacman or apk). Use it on a fresh host that should serve web
+  traffic. The package starts and enables the service itself; run Rotate and
+  Verify Nginx afterwards to prove it is up. A host that already has nginx
+  reports not applicable and nothing is touched.
 risk: standard
-
 platforms:
   - linux
 
+relevant:
+  not:
+    - hunt_package:
+        name: nginx
+
 actions:
-  - id: install nginx
+  - id: install
     type: install_package
     params:
       package_name: nginx
+    outcome: Installed

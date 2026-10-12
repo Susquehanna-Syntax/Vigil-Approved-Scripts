@@ -1,0 +1,25 @@
+name: Container Host Maintenance
+uid: 29d90af5-69fc-5c7b-a4d2-734741abb534
+author: Connor Haggerty
+created: 2026-08-26
+description: >-
+  Recurring maintenance for a Docker or Podman host. Truncates every
+  container's log, then clears stale temp files. Safe to run unattended: it
+  frees disk without stopping a single container. Hosts with no container
+  engine skip the log step and still get their temp files cleared.
+target_tags:
+  - docker
+
+steps:
+  - id: logs
+    task: truncate-container-logs
+    uid: 04954106-4ce1-48d7-a232-408624b49405
+    order: 1
+    on_not_applicable: skip
+    color: sky
+  - id: tmp
+    task: clear-temp-files
+    uid: c6c2e640-2958-54eb-a64f-f6be1870c131
+    order: 2
+    color: lavender
+    outcome: Maintained
